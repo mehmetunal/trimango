@@ -1,7 +1,7 @@
-# Ege Tatil Evleri - Proje Analizi ve Gereksinim Dokümanı (README)
+# Trimango - Proje Analizi ve Gereksinim Dokümanı (README)
 
 ## 0. Amaç & Kapsam
-Ege Tatil Evleri projesi; villa, bungalov ve apart gibi konaklama seçeneklerinin listelendiği, arandığı, rezerve edildiği ve ödemesinin yapıldığı bir tatil pazar yeri sistemidir.
+Trimango projesi; villa, bungalov ve apart gibi konaklama seçeneklerinin listelendiği, arandığı, rezerve edildiği ve ödemesinin yapıldığı bir tatil pazar yeri sistemidir.
 
 **Teknoloji:** ASP.NET Core MVC, Entity Framework Core, MSSQL, Identity Core  
 **Roller:** Ziyaretçi, Ücye (Müşteri), Tedarikçi (Supplier), Admin, Operasyon, Muhasebe  
@@ -245,6 +245,6 @@ Kampanya, görsel, denetim için
 ---
 
 ## 17. Sonuç
-Bu doküman, Ege Tatil Evleri projesinin tüm iş akışlarını, veritabanı yapısını, modüllerini, rollerini ve iş mantıklarını kapsar.  
+Bu doküman, Trimango projesinin tüm iş akışlarını, veritabanı yapısını, modüllerini, rollerini ve iş mantıklarını kapsar.  
 Tüm içerikler admin panelinden yönetilebilir olacak ve sistem tam entegre, esnek, ölçeklenebilir bir mimaride kurgulanmalıdır.
 

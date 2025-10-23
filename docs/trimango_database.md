@@ -1,6 +1,6 @@
-# Ege Tatil Evleri - Veritabanı Tasarımı (Database Design)
+# Trimango - Veritabanı Tasarımı (Database Design)
 
-Bu doküman, Ege Tatil Evleri projesinin veritabanı yapısını ve tabloların ilişkilerini detaylı olarak açıklar.  
+Bu doküman, Trimango projesinin veritabanı yapısını ve tabloların ilişkilerini detaylı olarak açıklar.  
 Tüm yapılar **MSSQL** ve **Entity Framework Core (Code-First)** yaklaşımına uygundur.
 
 ---
