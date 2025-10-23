@@ -145,7 +145,6 @@ solution:
                 - Serilog ile MSSQL'e loglama
                 - FluentValidation ile validasyon
                 - Seed data ve migration endpoint'leri
-                - SignalR Hub'ları (gerekliyse)
                 - Background Jobs (Quartz.NET)
                 - Rate Limiting (AspNetCoreRateLimit)
                 - API Versioning (Asp.Versioning)
@@ -1071,29 +1070,6 @@ security_rules:
     - CORS policy dikkatli yapılandırılmalı
 
 # -----------------------------------------------------------------------------
-# SIGNALR KURALLARI
-# -----------------------------------------------------------------------------
-signalr_rules:
-  usage: "Real-time communication için"
-  authentication: "JWT token ile WebSocket'te"
-  hub_organization: "Her feature için ayrı Hub (AuctionHub, ChatHub)"
-  
-  configuration:
-    - ClientTimeoutInterval: "Minimum 60 saniye"
-    - KeepAliveInterval: "15 saniye"
-    - Connection mapping: "OnConnected/OnDisconnected"
-  
-  example: |
-    public class AuctionHub : Hub
-    {
-        public override async Task OnConnectedAsync()
-        {
-            var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"User_{userId}");
-        }
-    }
-
-# -----------------------------------------------------------------------------
 # PERFORMANCE OPTIMIZATION KURALLARI
 # -----------------------------------------------------------------------------
 performance_rules:
@@ -1287,12 +1263,6 @@ performance_stability_rules:
       - Lock timeout: 30000 ms
       - Retry policy implementation
   
-  signalr_optimization:
-    - ClientTimeoutInterval: "Minimum 60 saniye"
-    - KeepAliveInterval: "15 saniye"
-    - Connection mapping cleanup: "OnDisconnectedAsync'de"
-    - Hub method timeout handling
-  
   transaction_handling:
     lock_timeout: |
       - SET LOCK_TIMEOUT 30000 (30 saniye)
@@ -1375,9 +1345,7 @@ program_cs_template: |
   
   // 12. Cache
   builder.Services.AddMaggsoftDistributedMemoryCache(typeof(IService));
-  
-  // 13. SignalR (gerekliyse)
-  builder.Services.AddSignalR();
+
   
   // 14. Rate Limiting
   builder.Services.Configure<IpRateLimitOptions>(...);
@@ -1799,11 +1767,7 @@ common_issues:
     - "AsNoTracking kullanılıyor mu?"
     - "Pagination uygulanmış mı?"
     - "_repository.Update() gereksiz yerde çağrılıyor mu? (Read-only'de gereksiz)"
-  
-  signalr_issues:
-    - "JWT token WebSocket'te iletiliyor mu?"
-    - "CORS konfigürasyonu doğru mu?"
-    - "Connection timeout yeterli mi?"
+
 
 # =====================================================================================
 # EK KAYNAKLAR

@@ -31,7 +31,6 @@
 - ✅ RESTful API mimarisi
 - ✅ JWT Authentication & Authorization
 - ✅ Çoklu dil desteği (TR, EN, DE, ...)
-- ✅ Real-time bildirimler (SignalR)
 - ✅ Background job sistemi (Quartz.NET)
 - ✅ Rate limiting ve DDoS koruması
 - ✅ Soft delete ve audit trail
@@ -109,13 +108,6 @@
 - Job persistence
 - Job monitoring
 
-### Real-time Communication
-
-- **SignalR**
-- WebSocket support
-- JWT authentication for hubs
-- Connection management
-- Group messaging
 
 ### Caching & Queue
 
@@ -172,7 +164,7 @@ Proje, Clean Architecture prensiplerini Maggsoft Framework ile adapte ederek kul
 ┌─────────────────────────────────────────────────────────┐
 │                    Presentation Layer                    │
 │  ┌───────────────────────────────────────────────────┐  │
-│  │  API Controllers, SignalR Hubs, Validators        │  │
+│  │  API Controllers, Validators        │  │
 │  │  Middleware, Filters, Services (JWT, Seed, etc.)  │  │
 │  └───────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────┘
@@ -437,30 +429,6 @@ GET /api/Products
 X-Language: tr  # tr, en, de, fr, ar
 ```
 
-### SignalR Hub Kullanımı (JavaScript)
-
-```javascript
-// SignalR bağlantısı
-const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/hubs/notification", {
-        accessTokenFactory: () => localStorage.getItem("accessToken")
-    })
-    .build();
-
-// Bağlantıyı başlat
-await connection.start();
-
-// Bildirim dinle
-connection.on("ReceiveNotification", (notification) => {
-    console.log("New notification:", notification);
-});
-
-// Gruba katıl
-await connection.invoke("JoinGroup", "notifications");
-```
-
----
-
 ## 📚 API Dokümantasyonu
 
 ### Swagger UI
@@ -637,14 +605,6 @@ sqlcmd -S localhost -U sa -P YourStrong!Pass -Q "BACKUP DATABASE [YourProjectDb]
 - Send scheduled emails
 - Process queued tasks
 - Data synchronization
-
-### ⚡ Real-time Communication (SignalR)
-
-- WebSocket support
-- JWT authentication
-- Connection management
-- Group messaging
-- Broadcast notifications
 
 ### 🚦 Rate Limiting
 
@@ -1182,16 +1142,6 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
-    
-    # SignalR WebSocket support
-    location /hubs/ {
-        proxy_pass http://localhost:5000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
 }
 ```
 
@@ -1228,7 +1178,6 @@ Bu proje [Lisans Türü] altında lisanslanmıştır. Detaylar için [LICENSE](L
 - Authentication & Authorization (JWT)
 - Çoklu dil desteği
 - Background jobs (Quartz.NET)
-- Real-time notifications (SignalR)
 - Rate limiting
 - API versioning
 - Comprehensive logging
