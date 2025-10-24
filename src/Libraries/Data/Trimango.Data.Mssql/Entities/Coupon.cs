@@ -23,6 +23,6 @@ namespace Trimango.Data.Mssql.Entities
         public string ApplicableUsers { get; set; } = string.Empty; // JSON array of user IDs (özel kuponlar)
         
         // Navigation Properties
-        public virtual ICollection<CouponUsage> Usages { get; set; } = new List<CouponUsage>();
+        public virtual ICollection<CouponUsage> CouponUsages { get; set; } = new List<CouponUsage>();
     }
 }

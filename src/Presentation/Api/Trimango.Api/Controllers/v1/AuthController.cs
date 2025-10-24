@@ -7,20 +7,22 @@ using Trimango.Dto.Mssql.Auth;
 using Trimango.Dto.Mssql.User;
 using Trimango.Mssql.Services.Interfaces;
 
-namespace Trimango.Api.Controllers
+namespace Trimango.Api.Controllers.v1
 {
     /// <summary>
     /// Authentication Controller
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
-    [ApiVersion("1.0")]
+    [Asp.Versioning.ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [Produces("application/json")]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IJwtService _jwtService;
         private readonly IUserService _userService;
+        private readonly ILocalizationService _localizationService;
         private readonly ILogger<AuthController> _logger;
 
         public AuthController(
@@ -28,12 +30,14 @@ namespace Trimango.Api.Controllers
             SignInManager<ApplicationUser> signInManager,
             IJwtService jwtService,
             IUserService userService,
+            ILocalizationService localizationService,
             ILogger<AuthController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _jwtService = jwtService;
             _userService = userService;
+            _localizationService = localizationService;
             _logger = logger;
         }
 
@@ -61,7 +65,7 @@ namespace Trimango.Api.Controllers
                 if (user == null)
                 {
                     _logger.LogWarning("Giriş başarısız: Email bulunamadı - {Email}", dto.Email);
-                    return Unauthorized(new { message = "Email veya şifre hatalı" });
+                    return Unauthorized(new { message = _localizationService.GetResource("Auth.InvalidCredentials") });
                 }
 
                 // Kullanıcı aktif mi kontrol et
@@ -76,7 +80,7 @@ namespace Trimango.Api.Controllers
                 if (!result.Succeeded)
                 {
                     _logger.LogWarning("Giriş başarısız: Şifre hatalı - {Email}", dto.Email);
-                    return Unauthorized(new { message = "Email veya şifre hatalı" });
+                    return Unauthorized(new { message = _localizationService.GetResource("Auth.InvalidCredentials") });
                 }
 
                 // Hesap kilitli mi kontrol et
@@ -140,8 +144,8 @@ namespace Trimango.Api.Controllers
 
                 if (!result.IsSuccess)
                 {
-                    _logger.LogWarning("Kayıt başarısız: {Error}", result.ErrorMessage);
-                    return BadRequest(new { message = result.ErrorMessage });
+                    _logger.LogWarning("Kayıt başarısız: {Error}", result.Message);
+                    return BadRequest(new { message = result.Message });
                 }
 
                 // Token oluştur
@@ -252,13 +256,13 @@ namespace Trimango.Api.Controllers
                 var result = await _userService.GetUserByIdAsync(userId);
                 if (!result.IsSuccess || result.Data == null)
                 {
-                    return NotFound(new { message = "Kullanıcı bulunamadı" });
+                    return NotFound(new { message = _localizationService.GetResource("User.NotFound") });
                 }
 
                 var user = await _userManager.FindByIdAsync(userIdClaim);
                 if (user == null)
                 {
-                    return NotFound(new { message = "Kullanıcı bulunamadı" });
+                    return NotFound(new { message = _localizationService.GetResource("User.NotFound") });
                 }
 
                 var userRoles = await _userManager.GetRolesAsync(user);
@@ -315,7 +319,7 @@ namespace Trimango.Api.Controllers
                 var user = await _userManager.FindByIdAsync(userIdClaim);
                 if (user == null)
                 {
-                    return NotFound(new { message = "Kullanıcı bulunamadı" });
+                    return NotFound(new { message = _localizationService.GetResource("User.NotFound") });
                 }
 
                 var result = await _userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);

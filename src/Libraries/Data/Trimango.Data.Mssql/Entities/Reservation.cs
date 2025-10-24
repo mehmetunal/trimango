@@ -32,5 +32,6 @@ namespace Trimango.Data.Mssql.Entities
         public virtual Policy? Policy { get; set; }
         public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
         public virtual ICollection<ReservationPriceBreakdown> PriceBreakdowns { get; set; } = new List<ReservationPriceBreakdown>();
+        public virtual ICollection<CouponUsage> CouponUsages { get; set; } = new List<CouponUsage>();
     }
 }

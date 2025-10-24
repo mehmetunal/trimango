@@ -1,3 +1,4 @@
+using FluentValidation;
 using Trimango.Api.Validators;
 using Trimango.Dto.Mssql.Auth;
 using Trimango.Mssql.Services.Interfaces;
@@ -11,17 +12,13 @@ namespace Trimango.Api.Validators
     {
         public RegisterDtoValidator(ILocalizationService localizationService) : base(localizationService)
         {
-            RuleFor(x => x.Email)
-                .NotEmpty()
-                .WithMessage(GetLocalizedMessage("Validation.Required", GetLocalizedMessage("User.Email")))
+            Required(x => x.Email, GetLocalizedMessage("User.Email"))
                 .EmailAddress()
                 .WithMessage(GetLocalizedMessage("Validation.Email"))
                 .MaximumLength(256)
                 .WithMessage(GetLocalizedMessage("Validation.MaxLength", GetLocalizedMessage("User.Email"), 256));
 
-            RuleFor(x => x.Password)
-                .NotEmpty()
-                .WithMessage(GetLocalizedMessage("Validation.Required", GetLocalizedMessage("User.Password")))
+            Required(x => x.Password, GetLocalizedMessage("User.Password"))
                 .MinimumLength(6)
                 .WithMessage(GetLocalizedMessage("Validation.MinLength", GetLocalizedMessage("User.Password"), 6))
                 .MaximumLength(100)
@@ -29,21 +26,15 @@ namespace Trimango.Api.Validators
                 .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$")
                 .WithMessage(GetLocalizedMessage("Validation.PasswordComplexity"));
 
-            RuleFor(x => x.ConfirmPassword)
-                .NotEmpty()
-                .WithMessage(GetLocalizedMessage("Validation.Required", GetLocalizedMessage("User.ConfirmPassword")))
+            Required(x => x.ConfirmPassword, GetLocalizedMessage("User.ConfirmPassword"))
                 .Equal(x => x.Password)
                 .WithMessage(GetLocalizedMessage("Validation.PasswordsDoNotMatch"));
 
-            RuleFor(x => x.FirstName)
-                .NotEmpty()
-                .WithMessage(GetLocalizedMessage("Validation.Required", GetLocalizedMessage("User.FirstName")))
+            Required(x => x.FirstName, GetLocalizedMessage("User.FirstName"))
                 .MaximumLength(100)
                 .WithMessage(GetLocalizedMessage("Validation.MaxLength", GetLocalizedMessage("User.FirstName"), 100));
 
-            RuleFor(x => x.LastName)
-                .NotEmpty()
-                .WithMessage(GetLocalizedMessage("Validation.Required", GetLocalizedMessage("User.LastName")))
+            Required(x => x.LastName, GetLocalizedMessage("User.LastName"))
                 .MaximumLength(100)
                 .WithMessage(GetLocalizedMessage("Validation.MaxLength", GetLocalizedMessage("User.LastName"), 100));
 

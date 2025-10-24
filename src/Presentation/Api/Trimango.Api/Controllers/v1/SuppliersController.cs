@@ -4,14 +4,15 @@ using Maggsoft.Core.Base;
 using Trimango.Mssql.Services.Interfaces;
 using Trimango.Dto.Mssql.Supplier;
 
-namespace Trimango.Api.Controllers
+namespace Trimango.Api.Controllers.v1
 {
     /// <summary>
     /// Tedarikçi yönetimi API endpoint'leri
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
-    [ApiVersion("1.0")]
+    [Asp.Versioning.ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [Produces("application/json")]
     public class SuppliersController : ControllerBase
     {
         private readonly ISupplierService _supplierService;

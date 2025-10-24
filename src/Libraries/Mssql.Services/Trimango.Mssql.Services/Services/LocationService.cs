@@ -49,8 +49,10 @@ namespace Trimango.Mssql.Services.Services
         public async Task<List<LocationDto>> GetLocationsByCityAsync(string city)
         {
             var locations = await _locationRepository.Table
-                .Where(l => l.City == city && l.IsActive && !l.IsDeleted)
-                .OrderBy(l => l.District)
+                .Include(l => l.City)
+                .Include(l => l.District)
+                .Where(l => l.City.Name == city && l.IsActive && !l.IsDeleted)
+                .OrderBy(l => l.District.Name)
                 .ToListAsync();
             return _mapper.Map<List<LocationDto>>(locations);
         }

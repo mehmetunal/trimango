@@ -26,8 +26,8 @@ public class MappingProfile : Profile
         // Property mappings
         CreateMap<Property, PropertyDto>()
             .ForMember(dest => dest.PropertyTypeName, opt => opt.MapFrom(src => src.PropertyType != null ? src.PropertyType.Name : string.Empty))
-            .ForMember(dest => dest.LocationCity, opt => opt.MapFrom(src => src.Location != null ? src.Location.City : string.Empty))
-            .ForMember(dest => dest.LocationDistrict, opt => opt.MapFrom(src => src.Location != null ? src.Location.District : string.Empty))
+            .ForMember(dest => dest.LocationCity, opt => opt.MapFrom(src => src.Location != null && src.Location.City != null ? src.Location.City.Name : string.Empty))
+            .ForMember(dest => dest.LocationDistrict, opt => opt.MapFrom(src => src.Location != null && src.Location.District != null ? src.Location.District.Name : string.Empty))
             .ForMember(dest => dest.SupplierName, opt => opt.MapFrom(src => src.Supplier != null ? src.Supplier.Name : string.Empty))
             .ForMember(dest => dest.ImagesCount, opt => opt.MapFrom(src => src.PropertyImages != null ? src.PropertyImages.Count : 0))
             .ForMember(dest => dest.UnitsCount, opt => opt.MapFrom(src => src.Units != null ? src.Units.Count : 0))

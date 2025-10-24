@@ -12,13 +12,9 @@ namespace Trimango.Api.Validators
     {
         public ChangePasswordDtoValidator(ILocalizationService localizationService) : base(localizationService)
         {
-            RuleFor(x => x.CurrentPassword)
-                .NotEmpty()
-                .WithMessage(GetLocalizedMessage("Validation.Required", GetLocalizedMessage("User.CurrentPassword")));
+            Required(x => x.CurrentPassword, GetLocalizedMessage("User.CurrentPassword"));
 
-            RuleFor(x => x.NewPassword)
-                .NotEmpty()
-                .WithMessage(GetLocalizedMessage("Validation.Required", GetLocalizedMessage("User.NewPassword")))
+            Required(x => x.NewPassword, GetLocalizedMessage("User.NewPassword"))
                 .MinimumLength(6)
                 .WithMessage(GetLocalizedMessage("Validation.MinLength", GetLocalizedMessage("User.NewPassword"), 6))
                 .MaximumLength(100)
@@ -26,9 +22,7 @@ namespace Trimango.Api.Validators
                 .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$")
                 .WithMessage(GetLocalizedMessage("Validation.PasswordComplexity"));
 
-            RuleFor(x => x.ConfirmNewPassword)
-                .NotEmpty()
-                .WithMessage(GetLocalizedMessage("Validation.Required", GetLocalizedMessage("User.ConfirmNewPassword")))
+            Required(x => x.ConfirmNewPassword, GetLocalizedMessage("User.ConfirmNewPassword"))
                 .Equal(x => x.NewPassword)
                 .WithMessage(GetLocalizedMessage("Validation.PasswordsDoNotMatch"));
         }

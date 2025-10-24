@@ -13,11 +13,6 @@ namespace Trimango.Data.Mssql.Entities
         /// </summary>
         public string Name { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Şehir plaka kodu
-        /// </summary>
-        public string PlateCode { get; set; } = string.Empty;
-
         // Navigation Properties
         /// <summary>
         /// Şehre ait ilçeler
@@ -28,5 +23,10 @@ namespace Trimango.Data.Mssql.Entities
         /// Şehirdeki property'ler
         /// </summary>
         public virtual ICollection<Property> Properties { get; set; } = new List<Property>();
+        
+        /// <summary>
+        /// Şehirdeki konumlar
+        /// </summary>
+        public virtual ICollection<Location> Locations { get; set; } = new List<Location>();
     }
 }

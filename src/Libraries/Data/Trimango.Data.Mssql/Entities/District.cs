@@ -28,5 +28,10 @@ namespace Trimango.Data.Mssql.Entities
         /// İlçedeki property'ler
         /// </summary>
         public virtual ICollection<Property> Properties { get; set; } = new List<Property>();
+        
+        /// <summary>
+        /// İlçedeki konumlar
+        /// </summary>
+        public virtual ICollection<Location> Locations { get; set; } = new List<Location>();
     }
 }

@@ -182,12 +182,23 @@ namespace Trimango.Mssql
             modelBuilder.Entity<Location>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.City).HasMaxLength(100).IsRequired();
-                entity.Property(e => e.District).HasMaxLength(100).IsRequired();
+                entity.Property(e => e.CityId).IsRequired();
+                entity.Property(e => e.DistrictId).IsRequired();
                 entity.Property(e => e.Region).HasMaxLength(100).IsRequired();
                 entity.Property(e => e.Address).HasMaxLength(255).IsRequired();
                 entity.Property(e => e.Latitude).HasColumnType("decimal(10,8)");
                 entity.Property(e => e.Longitude).HasColumnType("decimal(11,8)");
+                
+                // Foreign key ilişkileri
+                entity.HasOne(e => e.City)
+                    .WithMany(c => c.Locations)
+                    .HasForeignKey(e => e.CityId)
+                    .OnDelete(DeleteBehavior.NoAction);
+                    
+                entity.HasOne(e => e.District)
+                    .WithMany(d => d.Locations)
+                    .HasForeignKey(e => e.DistrictId)
+                    .OnDelete(DeleteBehavior.NoAction);
             });
 
             // Property konfigürasyonu
@@ -219,6 +230,7 @@ namespace Trimango.Mssql
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
                 entity.Property(e => e.BedConfig).HasMaxLength(100);
+                entity.Property(e => e.Price).HasColumnType("decimal(18,2)").IsRequired();
                 
                 entity.HasOne(e => e.Property)
                     .WithMany(p => p.Units)
@@ -431,6 +443,22 @@ namespace Trimango.Mssql
                 entity.Property(e => e.MaxDiscountAmount).HasColumnType("decimal(18,2)");
             });
 
+            modelBuilder.Entity<CouponUsage>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.DiscountAmount).HasColumnType("decimal(18,2)").IsRequired();
+                
+                entity.HasOne(e => e.Coupon)
+                    .WithMany(c => c.CouponUsages)
+                    .HasForeignKey(e => e.CouponId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.HasOne(e => e.Reservation)
+                    .WithMany(r => r.CouponUsages)
+                    .HasForeignKey(e => e.ReservationId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
             modelBuilder.Entity<Notification>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -495,7 +523,6 @@ namespace Trimango.Mssql
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
-                entity.Property(e => e.PlateCode).HasMaxLength(10).IsRequired();
             });
 
             modelBuilder.Entity<District>(entity =>

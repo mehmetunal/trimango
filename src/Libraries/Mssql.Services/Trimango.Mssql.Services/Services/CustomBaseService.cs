@@ -4,10 +4,7 @@ using Maggsoft.Core.Model;
 using Maggsoft.Mssql.Repository;
 using Maggsoft.Mssql.Services;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Trimango.Data.Mssql;
 using Trimango.Data.Mssql.Entities;
-using Maggsoft.Cache;
 using Microsoft.EntityFrameworkCore;
 using Trimango.Mssql.Services.Interfaces;
 

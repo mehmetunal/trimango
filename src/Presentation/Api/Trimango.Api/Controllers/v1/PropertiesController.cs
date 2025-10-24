@@ -4,14 +4,15 @@ using Maggsoft.Core.Base;
 using Trimango.Mssql.Services.Interfaces;
 using Trimango.Dto.Mssql.Property;
 
-namespace Trimango.Api.Controllers
+namespace Trimango.Api.Controllers.v1
 {
     /// <summary>
     /// Konaklama yönetimi API endpoint'leri
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
-    [ApiVersion("1.0")]
+    [Asp.Versioning.ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [Produces("application/json")]
     public class PropertiesController : ControllerBase
     {
         private readonly IPropertyService _propertyService;

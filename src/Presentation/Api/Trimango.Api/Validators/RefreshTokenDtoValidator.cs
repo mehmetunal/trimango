@@ -12,13 +12,9 @@ namespace Trimango.Api.Validators
     {
         public RefreshTokenDtoValidator(ILocalizationService localizationService) : base(localizationService)
         {
-            RuleFor(x => x.AccessToken)
-                .NotEmpty()
-                .WithMessage(GetLocalizedMessage("Validation.Required", GetLocalizedMessage("Auth.AccessToken")));
+            Required(x => x.AccessToken, GetLocalizedMessage("Auth.AccessToken"));
 
-            RuleFor(x => x.RefreshToken)
-                .NotEmpty()
-                .WithMessage(GetLocalizedMessage("Validation.Required", GetLocalizedMessage("Auth.RefreshToken")));
+            Required(x => x.RefreshToken, GetLocalizedMessage("Auth.RefreshToken"));
         }
     }
 }

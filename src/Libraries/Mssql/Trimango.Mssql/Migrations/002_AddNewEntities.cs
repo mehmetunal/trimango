@@ -23,6 +23,7 @@ namespace Trimango.Mssql.Migrations
                     .WithColumn("IsDeleted").AsBoolean().NotNullable().WithDefaultValue(false)
                     .WithColumn("CreatedDate").AsDateTime().NotNullable()
                     .WithColumn("CreatorUserId").AsGuid().Nullable()
+                    .WithColumn("CreatorIP").AsString(45).Nullable()
                     .WithColumn("UpdatedDate").AsDateTime().Nullable()
                     .WithColumn("UpdatedByUserId").AsGuid().Nullable()
                     .WithColumn("UpdatedIP").AsString(45).Nullable();

@@ -1,35 +1,41 @@
 using FluentValidation;
+using Trimango.Api.Validators;
 using Trimango.Dto.Mssql.User;
+using Trimango.Mssql.Services.Interfaces;
 
 namespace Trimango.Api.Validators
 {
     /// <summary>
     /// UpdateUserDto validator'ı
     /// </summary>
-    public class UpdateUserDtoValidator : AbstractValidator<UpdateUserDto>
+    public class UpdateUserDtoValidator : LocalizedValidator<UpdateUserDto>
     {
-        public UpdateUserDtoValidator()
+        public UpdateUserDtoValidator(ILocalizationService localizationService) : base(localizationService)
         {
-            RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Email adresi zorunludur")
-                .EmailAddress().WithMessage("Geçerli bir email adresi giriniz")
-                .MaximumLength(256).WithMessage("Email adresi en fazla 256 karakter olabilir");
+            Required(x => x.Email, GetLocalizedMessage("User.Email"))
+                .EmailAddress()
+                .WithMessage(GetLocalizedMessage("Validation.Email"))
+                .MaximumLength(256)
+                .WithMessage(GetLocalizedMessage("Validation.MaxLength", GetLocalizedMessage("User.Email"), 256));
 
-            RuleFor(x => x.FirstName)
-                .NotEmpty().WithMessage("Ad zorunludur")
-                .MaximumLength(100).WithMessage("Ad en fazla 100 karakter olabilir");
+            Required(x => x.FirstName, GetLocalizedMessage("User.FirstName"))
+                .MaximumLength(100)
+                .WithMessage(GetLocalizedMessage("Validation.MaxLength", GetLocalizedMessage("User.FirstName"), 100));
 
-            RuleFor(x => x.LastName)
-                .NotEmpty().WithMessage("Soyad zorunludur")
-                .MaximumLength(100).WithMessage("Soyad en fazla 100 karakter olabilir");
+            Required(x => x.LastName, GetLocalizedMessage("User.LastName"))
+                .MaximumLength(100)
+                .WithMessage(GetLocalizedMessage("Validation.MaxLength", GetLocalizedMessage("User.LastName"), 100));
 
             RuleFor(x => x.PhoneNumber)
-                .MaximumLength(20).WithMessage("Telefon numarası en fazla 20 karakter olabilir")
-                .Matches(@"^[\+]?[1-9][\d]{0,15}$").WithMessage("Geçerli bir telefon numarası giriniz")
+                .MaximumLength(20)
+                .WithMessage(GetLocalizedMessage("Validation.MaxLength", GetLocalizedMessage("User.PhoneNumber"), 20))
+                .Matches(@"^[\+]?[1-9][\d]{0,15}$")
+                .WithMessage(GetLocalizedMessage("Validation.PhoneNumber"))
                 .When(x => !string.IsNullOrEmpty(x.PhoneNumber));
 
             RuleFor(x => x.ProfilePictureUrl)
-                .MaximumLength(500).WithMessage("Profil resmi URL'si en fazla 500 karakter olabilir")
+                .MaximumLength(500)
+                .WithMessage(GetLocalizedMessage("Validation.MaxLength", GetLocalizedMessage("User.ProfilePictureUrl"), 500))
                 .When(x => !string.IsNullOrEmpty(x.ProfilePictureUrl));
         }
     }

@@ -4,14 +4,15 @@ using Maggsoft.Core.Base;
 using Trimango.Mssql.Services.Interfaces;
 using Trimango.Dto.Mssql.Location;
 
-namespace Trimango.Api.Controllers
+namespace Trimango.Api.Controllers.v1
 {
     /// <summary>
     /// Konum yönetimi API endpoint'leri
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
-    [ApiVersion("1.0")]
+    [Asp.Versioning.ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [Produces("application/json")]
     public class LocationsController : ControllerBase
     {
         private readonly ILocationService _locationService;
