@@ -84,6 +84,59 @@
 - Global query filters (soft delete)
 - AsNoTracking for performance
 
+#### FluentMigrator Konfigürasyonu
+
+```csharp
+// Program.cs'de FluentMigrator konfigürasyonu:
+builder.Services
+    .AddFluentMigratorCore()
+    .ConfigureRunner(rb => rb
+        .AddSqlServer()
+        .WithGlobalConnectionString(connectionString)
+        .ScanIn(typeof(YourProject.Mssql.Migrations.InitialCreate).Assembly).For.Migrations())
+    .AddLogging(lb => lb.AddFluentMigratorConsole());
+
+// Migration çalıştırma:
+using (var scope = app.Services.CreateScope())
+{
+    var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
+    runner.MigrateUp();
+}
+```
+
+#### Migration Oluşturma
+
+```csharp
+[MaggsoftMigration("2025/01/19 15:00:00", "Initial Create - Core Tables", "v01")]
+public sealed class InitialCreate : Migration
+{
+    public override void Up()
+    {
+        if (!Schema.Table("Users").Exists())
+        {
+            Create.Table("Users")
+                .WithColumn("Id").AsGuid().PrimaryKey()
+                .WithColumn("FirstName").AsString(100).NotNullable()
+                .WithColumn("LastName").AsString(100).NotNullable()
+                .WithColumn("Email").AsString(256).NotNullable()
+                // Audit fields
+                .WithColumn("IsActive").AsBoolean().NotNullable().WithDefaultValue(true)
+                .WithColumn("IsDeleted").AsBoolean().NotNullable().WithDefaultValue(false)
+                .WithColumn("CreatedDate").AsDateTime().NotNullable()
+                .WithColumn("CreatorUserId").AsGuid().Nullable()
+                .WithColumn("UpdatedDate").AsDateTime().Nullable()
+                .WithColumn("UpdatedByUserId").AsGuid().Nullable()
+                .WithColumn("UpdatedIP").AsString(45).Nullable();
+        }
+    }
+
+    public override void Down()
+    {
+        // Rollback genellikle kullanılmaz
+    }
+}
+```
+
 ### Validation
 
 - **FluentValidation** (11.3.0)

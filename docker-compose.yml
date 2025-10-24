@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # MSSQL Server
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: trimango-mssql
+    ports:
+      - "1433:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Test123456!"
+      MSSQL_PID: "Express"
+      MSSQL_TCP_PORT: 1433
+    volumes:
+      - mssql-data:/var/opt/mssql
+      - ./backup:/var/opt/mssql/backup
+    networks:
+      - trimango-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P Test123456! -C -Q 'SELECT 1' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # API Projesi
+  api:
+    build:
+      context: .
+      dockerfile: src/Presentation/Api/Trimango.Api/Dockerfile
+    container_name: trimango-api
+    ports:
+      - "5003:8080"
+      - "5004:443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - DATABASE_CONNECTION_STRING=Server=mssql,1433;Database=TrimangoDb;User Id=sa;Password=Test123456!;TrustServerCertificate=True;
+      - JWT_SECRET_KEY=YourSuperSecretKeyWithAtLeast32CharactersForTrimangoAPI!
+    depends_on:
+      mssql:
+        condition: service_healthy
+    networks:
+      - trimango-network
+    restart: unless-stopped
+
+volumes:
+  mssql-data:
+    driver: local
+
+networks:
+  trimango-network:
+    driver: bridge

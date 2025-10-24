@@ -1,4 +1,4 @@
-namespace TrinkEmlak.Api.Utilities;
+namespace Trimango.Api.Utilities;
 
 /// <summary>
 /// Environment variable işlemleri için yardımcı sınıf

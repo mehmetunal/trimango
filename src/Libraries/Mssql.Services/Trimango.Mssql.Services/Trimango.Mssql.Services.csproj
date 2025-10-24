@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Maggsoft.Core" />
+    <PackageReference Include="Maggsoft.Data" />
+    <PackageReference Include="Maggsoft.Mssql" />
+    <PackageReference Include="Maggsoft.Mssql.Services" />
+    <PackageReference Include="Maggsoft.Services" />
+    <PackageReference Include="AutoMapper" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Data\Trimango.Data.Mssql\Trimango.Data.Mssql.csproj" />
+    <ProjectReference Include="..\..\Dto\Trimango.Dto.Mssql\Trimango.Dto.Mssql.csproj" />
+    <ProjectReference Include="..\..\Mssql\Trimango.Mssql\Trimango.Mssql.csproj" />
+  </ItemGroup>
+
+</Project>

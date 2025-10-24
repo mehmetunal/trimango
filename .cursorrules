@@ -570,9 +570,25 @@ migration_rules:
   framework: "FluentMigrator"
   attribute: "[MaggsoftMigration]"
   format: "[MaggsoftMigration(\"yyyy/MM/dd HH:mm:ss\", \"Description\", \"version\")]"
-  auto_run: "app.AddUpMigrate() ile otomatik"
+  auto_run: "IMigrationRunner.MigrateUp() ile otomatik"
   location: "Mssql/Migrations/ klasöründe"
   naming: "Açıklayıcı isimler (001_CreateUsersTable, 002_AddUserAvatar)"
+  configuration: |
+    // Program.cs'de FluentMigrator konfigürasyonu:
+    builder.Services
+        .AddFluentMigratorCore()
+        .ConfigureRunner(rb => rb
+            .AddSqlServer()
+            .WithGlobalConnectionString(connectionString)
+            .ScanIn(typeof(YourProject.Mssql.Migrations.InitialCreate).Assembly).For.Migrations())
+        .AddLogging(lb => lb.AddFluentMigratorConsole());
+    
+    // Migration çalıştırma:
+    using (var scope = app.Services.CreateScope())
+    {
+        var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
+        runner.MigrateUp();
+    }
   
   best_practices:
     - "Her migration ayrı dosyada"

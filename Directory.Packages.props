@@ -1,0 +1,55 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Maggsoft Framework -->
+    <PackageVersion Include="Maggsoft.Core" Version="2.1.7" />
+    <PackageVersion Include="Maggsoft.Data" Version="2.1.7" />
+    <PackageVersion Include="Maggsoft.Framework" Version="2.6.3" />
+    <PackageVersion Include="Maggsoft.Data.Mssql" Version="2.1.0" />
+    <PackageVersion Include="Maggsoft.Mssql" Version="2.1.5" />
+    <PackageVersion Include="Maggsoft.Cache" Version="2.1.0" />
+    <PackageVersion Include="Maggsoft.Cache.MemoryCache" Version="2.0.7" />
+    <PackageVersion Include="Maggsoft.Services" Version="2.0.8" />
+    <PackageVersion Include="Maggsoft.Aspect.Core" Version="1.0.15" />
+    <PackageVersion Include="Maggsoft.Mssql.Services" Version="2.1.0" />
+    <PackageVersion Include="Maggsoft.Endpoints" Version="2.0.8" />
+    <PackageVersion Include="Maggsoft.Dto.Mssql" Version="1.0.2" />
+    <PackageVersion Include="Maggsoft.Logging" Version="1.0.6" />
+    <!-- Microsoft -->
+    <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0" />
+    <!-- Serilog -->
+    <PackageVersion Include="Serilog.AspNetCore" Version="8.0.1" />
+    <PackageVersion Include="Serilog.Sinks.MSSqlServer" Version="6.5.0" />
+    <PackageVersion Include="Serilog.Settings.Configuration" Version="8.0.0" />
+    <!-- Validation -->
+    <PackageVersion Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    <!-- Mapping -->
+    <PackageVersion Include="AutoMapper" Version="13.0.1" />
+    <!-- Migration -->
+    <PackageVersion Include="FluentMigrator" Version="6.2.0" />
+    <PackageVersion Include="FluentMigrator.Runner" Version="6.2.0" />
+    <PackageVersion Include="FluentMigrator.Runner.SqlServer" Version="6.2.0" />
+    <!-- Background Jobs -->
+    <PackageVersion Include="Quartz" Version="3.8.0" />
+    <PackageVersion Include="Quartz.Extensions.Hosting" Version="3.8.0" />
+    <!-- Cache -->
+    <PackageVersion Include="StackExchange.Redis" Version="2.7.17" />
+    <!-- Rate Limiting -->
+    <PackageVersion Include="AspNetCoreRateLimit" Version="5.0.0" />
+    <!-- API Versioning -->
+    <PackageVersion Include="Asp.Versioning.Mvc" Version="8.1.0" />
+    <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
+    <!-- Test Data -->
+    <PackageVersion Include="Bogus" Version="35.6.3" />
+    <!-- Swagger -->
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="7.1.0" />
+    <!-- HTTP Abstractions -->
+    <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+  </ItemGroup>
+</Project>

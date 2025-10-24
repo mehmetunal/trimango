@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Http;
-
-namespace TrinkEmlak.Api.Utilities;
+namespace Trimango.Api.Utilities;
 
 /// <summary>
 /// Dosya güvenlik kontrolü için yardımcı sınıf
