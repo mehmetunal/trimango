@@ -12,6 +12,8 @@
     <PackageReference Include="Maggsoft.Mssql" />
     <PackageReference Include="Maggsoft.Mssql.Services" />
     <PackageReference Include="Maggsoft.Services" />
+    <PackageReference Include="Maggsoft.Cache" />
+    <PackageReference Include="Maggsoft.Cache.MemoryCache" />
     <PackageReference Include="AutoMapper" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" />
   </ItemGroup>

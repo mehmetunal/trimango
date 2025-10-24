@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Trimango.Data.Mssql.Entities;
+using Trimango.Data.Mssql.Enums;
 using Trimango.Mssql;
 using Bogus;
 using Maggsoft.Core.Base;
@@ -318,7 +319,7 @@ namespace Trimango.Api.Services
 
             var properties = await _context.Properties.ToListAsync();
             var users = await _context.Users.ToListAsync();
-            var statuses = new[] { "Pending", "Confirmed", "Cancelled", "Completed", "NoShow" };
+            var statuses = new[] { ReservationStatus.Pending, ReservationStatus.Confirmed, ReservationStatus.CancelledByGuest, ReservationStatus.Completed, ReservationStatus.NoShow };
 
             var faker = new Faker<Reservation>("tr")
                 .RuleFor(r => r.PropertyId, f => f.PickRandom(properties).Id)
@@ -327,7 +328,11 @@ namespace Trimango.Api.Services
                 .RuleFor(r => r.CheckOutDate, (f, r) => r.CheckInDate.AddDays(f.Random.Int(1, 14)))
                 .RuleFor(r => r.TotalPrice, f => f.Random.Decimal(1000, 10000))
                 .RuleFor(r => r.Currency, "TRY")
-                .RuleFor(r => r.Status, f => f.PickRandom(statuses));
+                .RuleFor(r => r.Status, f => f.PickRandom(statuses))
+                .RuleFor(r => r.GuestName, f => f.Name.FullName())
+                .RuleFor(r => r.GuestEmail, f => f.Internet.Email())
+                .RuleFor(r => r.GuestPhone, f => f.Phone.PhoneNumber())
+                .RuleFor(r => r.GuestCount, f => f.Random.Int(1, 8));
 
             var reservations = faker.Generate(300); // 300 rezervasyon oluştur
 
@@ -345,8 +350,8 @@ namespace Trimango.Api.Services
             _logger.LogInformation("💳 Ödemeler oluşturuluyor...");
 
             var reservations = await _context.Reservations.ToListAsync();
-            var paymentMethods = new[] { "CreditCard", "BankTransfer", "Cash", "PayPal", "Stripe" };
-            var statuses = new[] { "Pending", "Completed", "Failed", "Refunded", "Cancelled" };
+            var paymentMethods = new[] { PaymentMethod.CreditCard, PaymentMethod.BankTransfer, PaymentMethod.Cash, PaymentMethod.PayPal, PaymentMethod.Stripe };
+            var statuses = new[] { PaymentStatus.Pending, PaymentStatus.Completed, PaymentStatus.Failed, PaymentStatus.Refunded, PaymentStatus.Cancelled };
 
             var faker = new Faker<Payment>("tr")
                 .RuleFor(p => p.ReservationId, f => f.PickRandom(reservations).Id)

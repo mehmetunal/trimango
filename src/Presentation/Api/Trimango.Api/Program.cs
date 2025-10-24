@@ -29,9 +29,11 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Trimango.Api.Middleware;
 using Trimango.Api.Models;
 using Trimango.Api.Utilities;
+using Trimango.Mssql.Services.Interfaces;
+using Trimango.Mssql.Services.Services;
+using Trimango.Api.Services;
 using Trimango.Data.Mssql.Entities;
 using Trimango.Mssql.Services.Mapping;
-using Trimango.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -200,7 +202,8 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 })
 .AddEntityFrameworkStores<TrimangoDbContext>()
 .AddRoleManager<RoleManager<ApplicationRole>>()
-.AddDefaultTokenProviders();
+.AddDefaultTokenProviders()
+.AddErrorDescriber<LocalizedIdentityErrorDescriber>();
 
 // JWT Settings konfigürasyonu - Environment variable'ları resolve et
 builder.Services.Configure<JwtSettings>(options =>
@@ -300,6 +303,9 @@ builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>()
 // Maggsoft IoC konfigürasyonu
 builder.Services.RegisterAll<IService>();
 
+// JWT Service
+builder.Services.AddScoped<IJwtService, JwtService>();
+
 
 // HTTP Context Accessor
 builder.Services.AddHttpContextAccessor();
@@ -327,7 +333,34 @@ builder.Services.AddGlobalResponseMiddlewareWithOptions(options =>
 
     options.OnMessageLocalization += async (sender, e) =>
     {
-        return;
+        try
+        {
+            var cache = e.HttpContext?.RequestServices?.GetService<ICache>();
+            if (cache != null)
+            {
+                var xLanguage = e.HttpContext?.Request?.Headers["X-Language"].FirstOrDefault();
+                var languageCode = !string.IsNullOrEmpty(xLanguage) ? xLanguage : "tr";
+
+                var languageMapping = await cache.GetAsync<Dictionary<string, Guid>>("LanguageMapping", TimeSpan.FromDays(1), async () => []);
+
+                if (languageMapping.TryGetValue(languageCode, out var languageId))
+                {
+                    var localizationCache = await cache.GetAsync<Dictionary<string, string>>("LocalizationCache", TimeSpan.FromDays(1), async () => new Dictionary<string, string>());
+
+                     if (localizationCache.TryGetValue( $"{languageId}_{e.MessageKey}", out var localizedMessage))
+                     {
+                         e.LocalizedMessage = localizedMessage;
+                         return;
+                     }
+                }
+            }
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+
+        e.LocalizedMessage = e.DefaultMessage;
     };
 });
 
@@ -442,6 +475,19 @@ if (seedDataEnabled)
         // Seed data hatası uygulamayı durdurmaz, devam et
         Log.Information("🚀 API seed data olmadan çalışmaya devam ediyor...");
     }
+}
+
+// Localization cache initialization
+try
+{
+    using var localizationScope = app.Services.CreateScope();
+    var localizationService = localizationScope.ServiceProvider.GetRequiredService<ILocalizationService>();
+    await localizationService.InitializeLocalizationCacheAsync();
+    Log.Information("Localization cache başarıyla yüklendi");
+}
+catch (Exception ex)
+{
+    Log.Warning(ex, "Localization cache yüklenirken hata oluştu, uygulama devam ediyor");
 }
 
 app.MapControllers();

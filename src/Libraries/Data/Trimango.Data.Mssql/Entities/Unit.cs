@@ -19,5 +19,8 @@ namespace Trimango.Data.Mssql.Entities
         // Navigation Properties
         public virtual Property Property { get; set; } = null!;
         public virtual ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
+        public virtual ICollection<SeasonalPricing> SeasonalPricings { get; set; } = new List<SeasonalPricing>();
+        public virtual ICollection<StayRule> StayRules { get; set; } = new List<StayRule>();
+        public virtual ICollection<ExtraFee> ExtraFees { get; set; } = new List<ExtraFee>();
     }
 }

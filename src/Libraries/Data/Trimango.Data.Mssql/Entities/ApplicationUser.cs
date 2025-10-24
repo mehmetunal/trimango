@@ -15,9 +15,30 @@ namespace Trimango.Data.Mssql.Entities
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime? LastLoginDate { get; set; }
         public bool IsActive { get; set; } = true;
+        public bool IsDeleted { get; set; } = false;
+        public DateTime? UpdatedDate { get; set; }
+        public string? UpdatedIP { get; set; }
         
         // Navigation Properties
         public virtual Supplier? Supplier { get; set; }
         public virtual ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
+
+        /// <summary>
+        /// Soft delete işlemi
+        /// </summary>
+        public void SoftDelete()
+        {
+            IsActive = false;
+            IsDeleted = true;
+        }
+
+        /// <summary>
+        /// Kullanıcıyı geri yükleme
+        /// </summary>
+        public void Restore()
+        {
+            IsActive = true;
+            IsDeleted = false;
+        }
     }
 }
