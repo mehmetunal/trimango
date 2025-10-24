@@ -202,6 +202,12 @@ namespace Trimango.Api.Services
                 // 2. Admin kullanıcısını oluştur
                 await SeedAdminUserAsync();
 
+                // 2.1. Supplier kullanıcılarını oluştur
+                await SeedSupplierUsersAsync();
+
+                // 2.2. Customer kullanıcılarını oluştur
+                await SeedCustomerUsersAsync();
+
                 // 3. Dilleri oluştur
                 await SeedLanguagesAsync();
 
@@ -373,6 +379,106 @@ namespace Trimango.Api.Services
                 else
                 {
                     _logger.LogError("❌ Admin kullanıcısı oluşturulamadı: {Errors}", string.Join(", ", result.Errors.Select(e => e.Description)));
+                }
+            }
+        }
+
+        private async Task SeedSupplierUsersAsync()
+        {
+            _logger.LogInformation("🏢 Supplier kullanıcıları oluşturuluyor...");
+
+            // Mevcut supplier kullanıcıları kontrol et
+            var existingSuppliers = await _context.Users.Where(u => u.IsSupplier == true).ToListAsync();
+            if (existingSuppliers.Count >= 5)
+            {
+                _logger.LogInformation("ℹ️ Supplier kullanıcıları zaten mevcut, atlanıyor...");
+                return;
+            }
+
+            var supplierUsers = new List<ApplicationUser>();
+            for (int i = 1; i <= 5; i++)
+            {
+                var supplier = new ApplicationUser
+                {
+                    UserName = $"supplier{i}@gmail.com",
+                    Email = $"supplier{i}@gmail.com",
+                    FirstName = _faker.Name.FirstName(),
+                    LastName = _faker.Name.LastName(),
+                    PhoneNumber = _faker.Phone.PhoneNumber(),
+                    IsSupplier = true,
+                    CreatedDate = DateTime.UtcNow,
+                    LastLoginDate = DateTime.UtcNow,
+                    IsActive = true
+                };
+                supplierUsers.Add(supplier);
+            }
+
+            foreach (var supplier in supplierUsers)
+            {
+                var existingUser = await _userManager.FindByEmailAsync(supplier.Email);
+                if (existingUser == null)
+                {
+                    var result = await _userManager.CreateAsync(supplier, "Supplier123!");
+                    if (result.Succeeded)
+                    {
+                        await _userManager.AddToRoleAsync(supplier, "Supplier");
+                        _logger.LogInformation("✅ Supplier kullanıcısı oluşturuldu: {Email}", supplier.Email);
+                    }
+                    else
+                    {
+                        _logger.LogError("❌ Supplier kullanıcısı oluşturulamadı: {Email} - {Errors}", 
+                            supplier.Email, string.Join(", ", result.Errors.Select(e => e.Description)));
+                    }
+                }
+            }
+        }
+
+        private async Task SeedCustomerUsersAsync()
+        {
+            _logger.LogInformation("👥 Customer kullanıcıları oluşturuluyor...");
+
+            // Mevcut customer kullanıcıları kontrol et
+            var existingCustomers = await _context.Users.Where(u => u.IsSupplier == false && u.Email != "admin@gmail.com").ToListAsync();
+            if (existingCustomers.Count >= 5)
+            {
+                _logger.LogInformation("ℹ️ Customer kullanıcıları zaten mevcut, atlanıyor...");
+                return;
+            }
+
+            var customerUsers = new List<ApplicationUser>();
+            for (int i = 1; i <= 5; i++)
+            {
+                var customer = new ApplicationUser
+                {
+                    UserName = $"customer{i}@gmail.com",
+                    Email = $"customer{i}@gmail.com",
+                    FirstName = _faker.Name.FirstName(),
+                    LastName = _faker.Name.LastName(),
+                    PhoneNumber = _faker.Phone.PhoneNumber(),
+                    IsSupplier = false,
+                    CreatedDate = DateTime.UtcNow,
+                    LastLoginDate = DateTime.UtcNow,
+                    IsActive = true
+                };
+                customerUsers.Add(customer);
+            }
+
+            foreach (var customer in customerUsers)
+            {
+                var existingUser = await _userManager.FindByEmailAsync(customer.Email);
+                if (existingUser == null)
+                {
+                    var result = await _userManager.CreateAsync(customer, "Customer123!");
+                    if (result.Succeeded)
+                    {
+                        await _userManager.AddToRoleAsync(customer, "Customer");
+                        _logger.LogInformation("✅ Customer kullanıcısı oluşturuldu: {Email}", customer.Email);
+                    }
+                    else
+                    {
+                        _logger.LogError("❌ Customer kullanıcısı oluşturulamadı: {Email} - {Errors}", 
+                            customer.Email, string.Join(", ", result.Errors.Select(e => e.Description)));
+                    }
                 }
             }
         }
@@ -858,6 +964,9 @@ namespace Trimango.Api.Services
 
                 var reservation = new Reservation
                 {
+                    CreatedDate = DateTime.UtcNow,
+                    CreatorUserId = _adminUserId ?? Guid.Empty,
+                    CreatorIP = "127.0.0.1",
                     UserId = _faker.PickRandom(users).Id,
                     UnitId = unit.Id,
                     PropertyId = property.Id,
@@ -937,14 +1046,43 @@ namespace Trimango.Api.Services
         {
             _logger.LogInformation("📄 Sayfalar oluşturuluyor...");
 
-            var pages = new Faker<Page>("tr")
-                .RuleFor(p => p.Title, f => f.PickRandom("Hakkımızda", "İletişim", "Gizlilik Politikası", "Kullanım Şartları", "SSS", "Kariyer", "Basın", "Yatırımcı İlişkileri"))
-                .RuleFor(p => p.Slug, (f, p) => p.Title.ToLowerInvariant().Replace(" ", "-"))
-                .RuleFor(p => p.Content, f => f.Lorem.Paragraphs(5))
-                .RuleFor(p => p.MetaTitle, f => f.Lorem.Sentence(3))
-                .RuleFor(p => p.MetaDescription, f => f.Lorem.Sentence())
-                .RuleFor(p => p.IsActive, f => true)
-                .Generate(10);
+            // Mevcut sayfaları kontrol et
+            var existingPages = await _context.Pages.ToListAsync();
+            if (existingPages.Any())
+            {
+                _logger.LogInformation("ℹ️ Sayfalar zaten mevcut, atlanıyor...");
+                return;
+            }
+
+            var pageTitles = new[] { "Hakkımızda", "İletişim", "Gizlilik Politikası", "Kullanım Şartları", "SSS", "Kariyer", "Basın", "Yatırımcı İlişkileri" };
+            var pages = new List<Page>();
+
+            foreach (var title in pageTitles)
+            {
+                var slug = title.ToLowerInvariant()
+                    .Replace(" ", "-")
+                    .Replace("ı", "i")
+                    .Replace("ğ", "g")
+                    .Replace("ü", "u")
+                    .Replace("ş", "s")
+                    .Replace("ö", "o")
+                    .Replace("ç", "c");
+
+                var page = new Page
+                {
+                    Title = title,
+                    Slug = slug,
+                    Content = new Faker("tr").Lorem.Paragraphs(5),
+                    MetaTitle = new Faker("tr").Lorem.Sentence(3),
+                    MetaDescription = new Faker("tr").Lorem.Sentence(),
+                    IsActive = true,
+                    CreatedDate = DateTime.UtcNow,
+                    CreatorUserId = Guid.Empty,
+                    CreatorIP = null
+                };
+
+                pages.Add(page);
+            }
 
             _context.Pages.AddRange(pages);
             await _context.SaveChangesAsync();
@@ -981,7 +1119,43 @@ namespace Trimango.Api.Services
         {
             _logger.LogInformation("📝 Blog kategorileri oluşturuluyor...");
 
-            var blogCategories = _blogCategoryFaker.Generate(8);
+            // Mevcut kategorileri kontrol et
+            var existingCategories = await _context.BlogCategories.ToListAsync();
+            if (existingCategories.Any())
+            {
+                _logger.LogInformation("ℹ️ Blog kategorileri zaten mevcut, atlanıyor...");
+                return;
+            }
+
+            var categoryNames = new[] { "Seyahat", "Konaklama", "Yemek", "Aktiviteler", "Kültür", "Doğa", "Spor", "Sanat" };
+            var blogCategories = new List<BlogCategory>();
+
+            foreach (var name in categoryNames)
+            {
+                var slug = name.ToLowerInvariant()
+                    .Replace("ı", "i")
+                    .Replace("ğ", "g")
+                    .Replace("ü", "u")
+                    .Replace("ş", "s")
+                    .Replace("ö", "o")
+                    .Replace("ç", "c");
+
+                var category = new BlogCategory
+                {
+                    Name = name,
+                    Slug = slug,
+                    Description = new Faker("tr").Lorem.Sentence(),
+                    Color = new Faker().Internet.Color(),
+                    IconUrl = new Faker().Image.PicsumUrl(64, 64),
+                    IsActive = true,
+                    CreatedDate = DateTime.UtcNow,
+                    CreatorUserId = Guid.Empty,
+                    CreatorIP = null
+                };
+
+                blogCategories.Add(category);
+            }
+
             _context.BlogCategories.AddRange(blogCategories);
             await _context.SaveChangesAsync();
             _logger.LogInformation("✅ {Count} blog kategorisi oluşturuldu", blogCategories.Count);
@@ -990,6 +1164,14 @@ namespace Trimango.Api.Services
         private async Task SeedBlogPostsAsync()
         {
             _logger.LogInformation("📰 Blog yazıları oluşturuluyor...");
+
+            // Mevcut blog yazılarını kontrol et
+            var existingPosts = await _context.BlogPosts.ToListAsync();
+            if (existingPosts.Any())
+            {
+                _logger.LogInformation("ℹ️ Blog yazıları zaten mevcut, atlanıyor...");
+                return;
+            }
 
             var blogCategories = await _context.BlogCategories.ToListAsync();
             var blogPosts = new List<BlogPost>();
@@ -1037,12 +1219,40 @@ namespace Trimango.Api.Services
         {
             _logger.LogInformation("🏷️ Blog etiketleri oluşturuluyor...");
 
-            var blogTags = new Faker<BlogTag>("tr")
-                .RuleFor(bt => bt.Name, f => f.PickRandom("Seyahat", "Konaklama", "Yemek", "Aktiviteler", "Kültür", "Doğa", "Tarih", "Sanat", "Müzik", "Spor"))
-                .RuleFor(bt => bt.Slug, (f, bt) => bt.Name.ToLowerInvariant().Replace(" ", "-"))
-                .RuleFor(bt => bt.Color, f => f.PickRandom("#6c757d", "#007bff", "#28a745", "#dc3545", "#ffc107", "#17a2b8"))
-                .RuleFor(bt => bt.IsActive, f => true)
-                .Generate(15);
+            // Mevcut etiketleri kontrol et
+            var existingTags = await _context.BlogTags.ToListAsync();
+            if (existingTags.Any())
+            {
+                _logger.LogInformation("ℹ️ Blog etiketleri zaten mevcut, atlanıyor...");
+                return;
+            }
+
+            var tagNames = new[] { "Seyahat", "Konaklama", "Yemek", "Aktiviteler", "Kültür", "Doğa", "Tarih", "Sanat", "Müzik", "Spor", "Tatil", "Macera", "Şehir", "Köy", "Deniz" };
+            var blogTags = new List<BlogTag>();
+
+            foreach (var name in tagNames)
+            {
+                var slug = name.ToLowerInvariant()
+                    .Replace("ı", "i")
+                    .Replace("ğ", "g")
+                    .Replace("ü", "u")
+                    .Replace("ş", "s")
+                    .Replace("ö", "o")
+                    .Replace("ç", "c");
+
+                var tag = new BlogTag
+                {
+                    Name = name,
+                    Slug = slug,
+                    Color = new Faker().PickRandom("#6c757d", "#007bff", "#28a745", "#dc3545", "#ffc107", "#17a2b8"),
+                    IsActive = true,
+                    CreatedDate = DateTime.UtcNow,
+                    CreatorUserId = Guid.Empty,
+                    CreatorIP = null
+                };
+
+                blogTags.Add(tag);
+            }
 
             _context.BlogTags.AddRange(blogTags);
             await _context.SaveChangesAsync();
@@ -1053,6 +1263,14 @@ namespace Trimango.Api.Services
         {
             _logger.LogInformation("💬 Sayfa yorumları oluşturuluyor...");
 
+            // Mevcut sayfa yorumlarını kontrol et
+            var existingComments = await _context.PageComments.ToListAsync();
+            if (existingComments.Any())
+            {
+                _logger.LogInformation("ℹ️ Sayfa yorumları zaten mevcut, atlanıyor...");
+                return;
+            }
+
             var pages = await _context.Pages.ToListAsync();
             var users = await _context.Users.ToListAsync();
             var pageComments = new List<PageComment>();
@@ -1062,9 +1280,15 @@ namespace Trimango.Api.Services
                 var pagePageComments = new Faker<PageComment>("tr")
                     .RuleFor(pc => pc.PageId, page.Id)
                     .RuleFor(pc => pc.UserId, f => _faker.PickRandom(users).Id)
+                    .RuleFor(pc => pc.Name, f => f.Name.FullName())
+                    .RuleFor(pc => pc.Email, f => f.Internet.Email())
                     .RuleFor(pc => pc.Content, f => f.Lorem.Sentence())
                     .RuleFor(pc => pc.IsApproved, f => f.Random.Bool())
                     .RuleFor(pc => pc.IsActive, f => true)
+                    .RuleFor(pc => pc.CreatedDate, f => DateTime.UtcNow)
+                    .RuleFor(pc => pc.CreatorUserId, f => Guid.Empty)
+                    .RuleFor(pc => pc.CreatorIP, f => (string?)null)
+                    .RuleFor(pc => pc.DisplayOrder, f => 0)
                     .Generate(_faker.Random.Int(0, 3));
 
                 pageComments.AddRange(pagePageComments);
@@ -1134,19 +1358,42 @@ namespace Trimango.Api.Services
         {
             _logger.LogInformation("❤️ Favoriler oluşturuluyor...");
 
+            // Mevcut favorileri kontrol et
+            var existingFavorites = await _context.Favorites.ToListAsync();
+            if (existingFavorites.Any())
+            {
+                _logger.LogInformation("ℹ️ Favoriler zaten mevcut, atlanıyor...");
+                return;
+            }
+
             var properties = await _context.Properties.ToListAsync();
             var users = await _context.Users.ToListAsync();
             var favorites = new List<Favorite>();
+            var usedCombinations = new HashSet<(Guid UserId, Guid PropertyId)>();
 
             foreach (var user in users)
             {
                 var userFavorites = new Faker<Favorite>("tr")
                     .RuleFor(f => f.UserId, user.Id)
                     .RuleFor(f => f.PropertyId, f => _faker.PickRandom(properties).Id)
+                    .RuleFor(f => f.Notes, f => f.Lorem.Sentence())
                     .RuleFor(f => f.IsActive, f => true)
+                    .RuleFor(f => f.CreatedDate, f => DateTime.UtcNow)
+                    .RuleFor(f => f.CreatorUserId, f => Guid.Empty)
+                    .RuleFor(f => f.CreatorIP, f => (string?)null)
+                    .RuleFor(f => f.DisplayOrder, f => 0)
                     .Generate(_faker.Random.Int(0, 10));
 
-                favorites.AddRange(userFavorites);
+                // Duplicate kontrolü yap
+                foreach (var favorite in userFavorites)
+                {
+                    var combination = (favorite.UserId, favorite.PropertyId);
+                    if (!usedCombinations.Contains(combination))
+                    {
+                        usedCombinations.Add(combination);
+                        favorites.Add(favorite);
+                    }
+                }
             }
 
             _context.Favorites.AddRange(favorites);
@@ -1158,7 +1405,21 @@ namespace Trimango.Api.Services
         {
             _logger.LogInformation("💬 Mesajlar oluşturuluyor...");
 
+            // Mevcut mesajları kontrol et
+            var existingMessages = await _context.Messages.ToListAsync();
+            if (existingMessages.Any())
+            {
+                _logger.LogInformation("ℹ️ Mesajlar zaten mevcut, atlanıyor...");
+                return;
+            }
+
             var users = await _context.Users.ToListAsync();
+            if (users.Count < 2)
+            {
+                _logger.LogWarning("⚠️ Mesaj oluşturmak için en az 2 kullanıcı gerekli, atlanıyor...");
+                return;
+            }
+
             var messages = new List<Message>();
 
             for (int i = 0; i < 100; i++)
@@ -1173,7 +1434,10 @@ namespace Trimango.Api.Services
                     Subject = _faker.Lorem.Sentence(3),
                     Content = _faker.Lorem.Paragraph(),
                     IsRead = _faker.Random.Bool(),
-                    IsActive = true
+                    IsActive = true,
+                    CreatedDate = DateTime.UtcNow,
+                    CreatorUserId = Guid.Empty,
+                    CreatorIP = null
                 };
 
                 messages.Add(message);
@@ -1652,7 +1916,10 @@ namespace Trimango.Api.Services
                             LocaleKey = "Title",
                             LocaleValue = titleTranslations[languageCode],
                             IsActive = true,
-                            CreatedDate = DateTime.UtcNow
+                            CreatedDate = DateTime.UtcNow,
+                            CreatorUserId = Guid.Empty,
+                            CreatorIP = null,
+                            DisplayOrder = 0
                         });
                     }
 
@@ -1676,7 +1943,10 @@ namespace Trimango.Api.Services
                             LocaleKey = "Description",
                             LocaleValue = descriptionTranslations[languageCode],
                             IsActive = true,
-                            CreatedDate = DateTime.UtcNow
+                            CreatedDate = DateTime.UtcNow,
+                            CreatorUserId = Guid.Empty,
+                            CreatorIP = null,
+                            DisplayOrder = 0
                         });
                     }
                 }
@@ -1709,7 +1979,10 @@ namespace Trimango.Api.Services
                             LocaleKey = "Name",
                             LocaleValue = nameTranslations[languageCode],
                             IsActive = true,
-                            CreatedDate = DateTime.UtcNow
+                            CreatedDate = DateTime.UtcNow,
+                            CreatorUserId = Guid.Empty,
+                            CreatorIP = null,
+                            DisplayOrder = 0
                         });
                     }
                 }
@@ -1742,7 +2015,10 @@ namespace Trimango.Api.Services
                             LocaleKey = "Name",
                             LocaleValue = nameTranslations[languageCode],
                             IsActive = true,
-                            CreatedDate = DateTime.UtcNow
+                            CreatedDate = DateTime.UtcNow,
+                            CreatorUserId = Guid.Empty,
+                            CreatorIP = null,
+                            DisplayOrder = 0
                         });
                     }
                 }
@@ -1775,7 +2051,10 @@ namespace Trimango.Api.Services
                             LocaleKey = "Title",
                             LocaleValue = titleTranslations[languageCode],
                             IsActive = true,
-                            CreatedDate = DateTime.UtcNow
+                            CreatedDate = DateTime.UtcNow,
+                            CreatorUserId = Guid.Empty,
+                            CreatorIP = null,
+                            DisplayOrder = 0
                         });
                     }
                 }

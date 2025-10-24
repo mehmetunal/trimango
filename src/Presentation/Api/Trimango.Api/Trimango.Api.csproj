@@ -42,4 +42,10 @@
     <ProjectReference Include="..\..\..\Libraries\Mssql.Services\Trimango.Mssql.Services\Trimango.Mssql.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Bogus">
+      <HintPath>..\..\..\..\..\..\..\..\..\home\mehmet\.nuget\packages\bogus\35.6.3\lib\net6.0\Bogus.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

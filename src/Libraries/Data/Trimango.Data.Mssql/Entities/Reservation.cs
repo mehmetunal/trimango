@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using Trimango.Data.Mssql;
 using Trimango.Data.Mssql.Enums;
 
@@ -10,6 +11,7 @@ namespace Trimango.Data.Mssql.Entities
     {
         public Guid UnitId { get; set; }
         public Guid PropertyId { get; set; }
+        
         public Guid UserId { get; set; } // AspNetUsers ID
         public DateTime CheckInDate { get; set; }
         public DateTime CheckOutDate { get; set; }
@@ -29,6 +31,7 @@ namespace Trimango.Data.Mssql.Entities
         // Navigation Properties
         public virtual Unit Unit { get; set; } = null!;
         public virtual Property Property { get; set; } = null!;
+        public virtual ApplicationUser User { get; set; } = null!;
         public virtual Policy? Policy { get; set; }
         public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
         public virtual ICollection<ReservationPriceBreakdown> PriceBreakdowns { get; set; } = new List<ReservationPriceBreakdown>();

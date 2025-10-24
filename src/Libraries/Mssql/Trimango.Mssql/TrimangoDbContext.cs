@@ -268,6 +268,11 @@ namespace Trimango.Mssql
                     .WithMany(p => p.Reservations)
                     .HasForeignKey(e => e.PropertyId)
                     .OnDelete(DeleteBehavior.Restrict);
+                
+                entity.HasOne(e => e.User)
+                    .WithMany(u => u.Reservations)
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             // Payment konfigürasyonu
